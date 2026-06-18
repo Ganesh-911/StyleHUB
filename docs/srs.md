@@ -2,7 +2,7 @@
 
 # Project Name
 
-StyleHub
+StyleHUB
 
 # Version
 
@@ -323,7 +323,7 @@ Prepared By:
 Ganesh Gundubogula
 
 Project:
-StyleHub
+StyleHUB
 
 Status:
 Approved For Design Phase
