@@ -16,21 +16,35 @@ export const createProduct = async (req, res) => {
         });
     }
 };
-export const getProducts= async(req,res)=>{
-    try{
-        const products=await Product.find();    
+export const getProducts = async (req, res) => {
+  try {
+    const query = {};
+
+    if (req.query.keyword) {
+      query.name = {
+        $regex: req.query.keyword,
+        $options: "i",
+      };
+    }
+
+    if (req.query.category) {
+      query.category = req.query.category;
+    }
+
+    const products = await Product.find(query);
+
     res.status(200).json({
-        success:true,
-        count:products.length,
-        products,
+      success: true,
+      count: products.length,
+      products,
     });
-    }
-    catch(error){
-        res.status(500).json({
-            success:false,
-            message:error.message,
-        });
-    }
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };
 export const getProductById= async(req,res)=>{
     try{
