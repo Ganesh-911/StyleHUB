@@ -86,3 +86,44 @@ export const getAllOrders = async (req, res) => {
 
     }
 };
+export const updateOrderStatus = async(req,res)=>{
+    try{
+        const order=await Order.findById(req.params.id);
+        if(!order){
+            return res.status(400).json({
+                success:false,
+                message:"Order not found",
+            });
+        }
+            const validTransitions = {
+            Pending: ["Confirmed", "Cancelled"],
+            Confirmed: ["Packed", "Cancelled"],
+            Packed: ["Shipped"],
+            Shipped: ["Delivered"],
+            Delivered: [],
+            Cancelled: []
+        };
+
+        const currentStatus = order.orderStatus;
+        const newStatus = req.body.orderStatus;
+
+        if (!validTransitions[currentStatus].includes(newStatus)) {
+            return res.status(400).json({
+                success: false,
+                message: `Cannot change order from ${currentStatus} to ${newStatus}`
+            });
+        }
+        order.orderStatus=newStatus;
+        await order.save();
+        res.status(200).json({
+            success:true,
+            message:"Order status updated successfully",
+        });
+    }
+    catch(error){
+        res.status(500).json({
+            success:false,
+            message:error.message,
+        });
+    }
+};
