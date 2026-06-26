@@ -1,5 +1,6 @@
 import Order from "../models/Order.js";
 import Cart from "../models/Cart.js";
+import Product from "../models/Product.js";
 export const createOrder = async (req, res) => {
     try{
         const cartItems= await Cart.find({
@@ -17,6 +18,21 @@ export const createOrder = async (req, res) => {
         // console.log("cartItems:", cartItems);
         for(const item of cartItems){
         //    console.log("item.product:", item.product);
+            const product= await Product.findById(item.product._id);
+            if(!product){
+                return res.status(400).json({
+                    success:false,
+                    message:"Product not found",
+                });
+            }
+            if(product.stock<item.quantity){
+                return res.status(400).json({
+                    success:false,
+                    message:`Insufficient stock for ${product.name}`,
+                });
+            }
+            product.stock -= item.quantity;
+            await product.save();
             orderItems.push({
                 product: item.product._id,
                 name:item.product.name,
