@@ -1,12 +1,13 @@
 import express from "express";
 import {createProduct,getProducts,getProductById,updateProduct,deleteProduct} from "../controllers/productController.js";
 import {protect,authorizeRoles} from "../middlewares/authMiddleware.js";
-import {createReview} from "../controllers/reviewController.js";
+import {createReview,getProductReviews} from "../controllers/reviewController.js";
 const router=express.Router();
 router.post("/",protect,authorizeRoles("admin"),createProduct);
 router.put("/:id", protect,authorizeRoles("admin"),updateProduct);
 router.delete("/:id",protect,authorizeRoles("admin"),deleteProduct);
+router.post("/:id/reviews", protect, createReview);
+router.get("/:id/reviews",getProductReviews);
 router.get("/:id",getProductById);
 router.get("/",getProducts);
-router.post("/:id/reviews", protect, createReview);
 export default router;

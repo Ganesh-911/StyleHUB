@@ -91,3 +91,75 @@ export const createReview = async (req, res) => {
         });
     }
 };
+export const getProductReviews = async (req, res) => {
+    try {
+
+        const productId = req.params.id;
+
+        const product = await Product.findById(productId);
+
+        if (!product) {
+            return res.status(404).json({
+                success: false,
+                message: "Product not found",
+            });
+        }
+
+        const reviews = await Review.find({
+            product: productId,
+        }).populate("user", "name email");
+
+        res.status(200).json({
+            success: true,
+            count: reviews.length,
+            reviews,
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
+export const deleteReview = async (req, res) => {
+    try {
+
+        const review = await Review.findById(req.params.id);
+
+        if (!review) {
+            return res.status(404).json({
+                success: false,
+                message: "Review not found",
+            });
+        }
+
+        // Owner or Admin
+        if (
+            review.user.toString() !== req.user._id.toString() &&
+            req.user.role !== "admin"
+        ) {
+            return res.status(403).json({
+                success: false,
+                message: "Not authorized to delete this review",
+            });
+        }
+
+        const productId = review.product;
+
+        await review.deleteOne();
+
+        await updateProductRating(productId);
+
+        res.status(200).json({
+            success: true,
+            message: "Review deleted successfully",
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
