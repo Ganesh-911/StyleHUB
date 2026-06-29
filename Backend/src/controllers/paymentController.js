@@ -1,6 +1,7 @@
 import Razorpay from "razorpay";
 import crypto from "crypto";
 import Order from "../models/Order.js";
+import Product from "../models/Product.js";
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
     key_secret: process.env.RAZORPAY_KEY_SECRET,
@@ -77,6 +78,28 @@ export const verifyPayment = async (req, res) => {
                 message: "Invalid payment signature",
             });
         }
+        for (const item of order.orderItems) {
+
+            const product = await Product.findById(item.product);
+
+            if (!product) {
+                return res.status(404).json({
+                    success: false,
+                    message: `${item.name} not found`,
+                });
+            }
+
+            if (product.stock < item.quantity) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Insufficient stock for ${product.name}`,
+                });
+            }
+
+            product.stock -= item.quantity;
+
+            await product.save();
+        }
         order.paymentStatus = "Paid";
         order.orderStatus = "Confirmed";
 
@@ -88,6 +111,37 @@ export const verifyPayment = async (req, res) => {
             success: true,
             message: "Payment verified successfully",
             order,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
+export const paymentFailed = async (req, res) => {
+    try {
+        const { orderId } = req.body;
+        const order = await Order.findById(orderId);
+
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: "Order not found",
+            });
+        }
+        if (order.paymentStatus === "Paid") {
+            return res.status(400).json({
+                success: false,
+                message: "Payment already completed",
+            });
+        }
+        order.paymentStatus = "Failed";
+
+        await order.save();
+        return res.status(200).json({
+            success: true,
+            message: "Payment marked as failed",
         });
     } catch (error) {
         res.status(500).json({

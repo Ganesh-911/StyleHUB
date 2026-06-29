@@ -31,8 +31,8 @@ export const createOrder = async (req, res) => {
                     message:`Insufficient stock for ${product.name}`,
                 });
             }
-            product.stock -= item.quantity;
-            await product.save();
+            // product.stock -= item.quantity;
+            // await product.save();
             orderItems.push({
                 product: item.product._id,
                 name:item.product.name,
@@ -140,6 +140,60 @@ export const updateOrderStatus = async(req,res)=>{
         res.status(500).json({
             success:false,
             message:error.message,
+        });
+    }
+};
+export const cancelOrder = async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id);
+
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: "Order not found",
+            });
+        }
+        if (order.orderStatus === "Cancelled") {
+            return res.status(400).json({
+                success: false,
+                message: "Order is already cancelled",
+            });
+        }
+        if (order.orderStatus === "Shipped" ||order.orderStatus === "Delivered" ) {
+            return res.status(400).json({
+                success: false,
+                message: `Cannot cancel ${order.orderStatus} order`,
+            });
+        }
+        if (order.user.toString() !== req.user._id.toString()) {
+            return res.status(403).json({
+                success: false,
+                message: "Not authorized to cancel this order",
+            });
+        }
+        if (order.paymentStatus === "Paid") {
+            for (const item of order.orderItems) {
+
+                const product = await Product.findById(item.product);
+
+                if (product) {
+                    product.stock += item.quantity;
+                    await product.save();
+                }
+            }
+        }
+        order.orderStatus = "Cancelled";
+        await order.save();
+        return res.status(200).json({
+            success: true,
+            message: "Order cancelled successfully",
+            order,
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
         });
     }
 };
