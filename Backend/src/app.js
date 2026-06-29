@@ -5,6 +5,8 @@ import cartRoutes from "./routes/cartRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
 import wishlistRoutes from "./routes/wishlistRoutes.js";
+import paymentRoutes from "./routes/paymentRoutes.js";
+
 const app = express();
 
 app.use(express.json());
@@ -14,6 +16,8 @@ app.use("/api/v1/cart", cartRoutes);
 app.use("/api/v1/orders", orderRoutes);
 app.use("/api/v1/reviews",reviewRoutes);
 app.use("/api/v1/wishlist", wishlistRoutes);
+app.use("/api/v1/payment", paymentRoutes);
+
 app.get("/", (req, res) => {
   res.send("StyleHub API Running...");
 });
