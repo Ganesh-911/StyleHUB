@@ -1,12 +1,13 @@
+import { Toaster } from "react-hot-toast";
+import AppRoutes from "./routes/AppRoutes";
+
 function App() {
-  return (
-    
-    <div className="min-h-screen flex items-center justify-center bg-slate-900">
-      <h1 className="text-5xl font-bold text-white">
-        StyleHub Frontend 🚀
-      </h1>
-    </div>
-  );
+    return (
+        <>
+            <Toaster position="top-right" />
+            <AppRoutes />
+        </>
+    );
 }
 
 export default App;
