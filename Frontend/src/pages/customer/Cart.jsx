@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Layout from "../../components/layout/Layout";
 import api from "../../services/axios";
 import toast from "react-hot-toast";
@@ -7,11 +7,9 @@ function Cart() {
     const [cart, setCart] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        getCart();
-    }, []);
+    
 
-    const getCart = async () => {
+    const getCart = useCallback(async () => {
         try {
             const res = await api.get("/cart");
             setCart(res.data.cartItems);
@@ -22,7 +20,10 @@ function Cart() {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
+    useEffect(() => {
+        getCart();
+    }, [getCart]);
 
     const updateQuantity = async (id, quantity) => {
         try {
