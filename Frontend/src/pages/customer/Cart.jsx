@@ -2,10 +2,12 @@ import { useEffect, useState, useCallback } from "react";
 import Layout from "../../components/layout/Layout";
 import api from "../../services/axios";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 function Cart() {
     const [cart, setCart] = useState([]);
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     
 
@@ -181,6 +183,7 @@ function Cart() {
                             </div>
 
                             <button
+                                onClick={() => navigate("/checkout")}
                                 className="w-full mt-6 bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-lg transition"
                             >
                                 Proceed To Checkout
