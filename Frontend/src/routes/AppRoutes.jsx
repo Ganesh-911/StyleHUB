@@ -5,6 +5,7 @@ import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
 import Products from "../pages/customer/Products";
 import ProductDetails from "../pages/customer/ProductDetails";
+import Cart from "../pages/customer/Cart";
 
 function AppRoutes() {
     return (
@@ -23,6 +24,11 @@ function AppRoutes() {
                     path="/products/:id"
                     element={<ProductDetails />}
                 />
+                <Route path="/cart" element={
+                    <ProtectedRoute>
+                        <Cart />
+                    </ProtectedRoute>
+                }/>
 
             </Routes>
         </BrowserRouter>
